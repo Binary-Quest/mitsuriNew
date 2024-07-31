@@ -1,4 +1,4 @@
-#(©)Codexbotz
+
 
 from pyrogram import __version__
 from bot import Bot
@@ -10,7 +10,7 @@ async def cb_handler(client: Bot, query: CallbackQuery):
     data = query.data
     if data == "about":
         await query.message.edit_text(
-            text = f"<b>○ 🖤 ᴍʏ ᴄʀᴇᴀᴛᴏʀ : <a href='https://t.me/BinaryQuest'>BɪɴᴀʀʏQᴜᴇꜱᴛ</a> \n○ ❤️‍🔥 ꜱᴜᴘᴘᴏʀᴛ : @BQChats \n○ 🔥Library : <a href='https://docs.pyrogram.org/'>Pyrogram asyncio {__version__}</a>\n○ 🥶sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ  : <a href='https://t.me/itz_sahil_official'>ᴘʀɪᴠᴀᴛᴇ ᴄᴏᴅᴇ</a>\n○ 🥵 ᴅᴏɴᴀᴛᴇ ᴍᴇ : <a href='https://t.me/itz_sahil_official/52'>ᴄʟɪᴄᴋ ᴍᴇ</a></b>",
+            text = f"<b>○ 🖤 ᴍʏ ᴄʀᴇᴀᴛᴏʀ : @inOyr\n○ 🔥Library : <a href='https://docs.pyrogram.org/'>Pyrogram asyncio {__version__}</a>\n○ 🥶sᴏᴜʀᴄᴇ ᴄᴏᴅᴇ  : <a href='https://t.me/itz_sahil_official'>ᴘʀɪᴠᴀᴛᴇ ᴄᴏᴅᴇ</a>\n○ 🥵 ᴅᴏɴᴀᴛᴇ ᴍᴇ : <a href='https://t.me/inOyr'>ᴄʟɪᴄᴋ ᴍᴇ</a></b>",
             disable_web_page_preview = True,
             reply_markup = InlineKeyboardMarkup(
                 [
