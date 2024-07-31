@@ -30,9 +30,90 @@ async def start_command(client: Client, message: Message):
             base64_string = text.split(" ", 1)[1]
         except:
             return
-        links = base64_string.split(" ")
-        for link in links:
-            await process_link(client, message, link)
+        string = await decode(base64_string)
+        argument = string.split("-")
+        if len(argument) == 3:
+            try:
+                start = int(int(argument[1]) / abs(client.db_channel.id))
+                end = int(int(argument[2]) / abs(client.db_channel.id))
+            except:
+                return
+            if start <= end:
+                ids = range(start, end + 1)
+            else:
+                ids = []
+                i = start
+                while True:
+                    ids.append(i)
+                    i -= 1
+                    if i < end:
+                        break
+        elif len(argument) == 2:
+            try:
+                ids = [int(int(argument[1]) / abs(client.db_channel.id))]
+            except:
+                return
+        temp_msg = await message.reply("Please wait...")
+        try:
+            messages = await get_messages(client, ids)
+        except:
+            await message.reply_text("Something went wrong..!")
+            return
+        await temp_msg.delete()
+
+        snt_msgs = []
+
+        for msg in messages:
+            if bool(CUSTOM_CAPTION) & bool(msg.document):
+                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
+            else:
+                caption = "" if not msg.caption else msg.caption.html
+
+            if DISABLE_CHANNEL_BUTTON:
+                reply_markup = msg.reply_markup
+            else:
+                reply_markup = None
+
+            try:
+                snt_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
+                snt_msgs.append(snt_msg)
+                await asyncio.sleep(0.5)
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                snt_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
+                snt_msgs.append(snt_msg)
+            except:
+                pass
+
+        # Send the notification message about file deletion
+        temp_msg = await client.send_message(
+            message.from_user.id,
+            "<b>⚠️ Fɪʟᴇꜱ ᴡɪʟʟ ʙᴇ Dᴇʟᴇᴛᴇᴅ ɪɴ 30 ᴍɪɴꜱ\n\n♻️ Pʟᴇᴀꜱᴇ Fᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ Sᴀᴠᴇᴅ Mᴇꜱꜱᴀɢᴇꜱ Bᴇꜰᴏʀᴇ Dᴏᴡɴʟᴏᴀᴅɪɴɢ..!</b>"
+        )
+
+        # Wait for the specified time
+        await asyncio.sleep(SECONDS)
+
+        # Delete files
+        for snt_msg in snt_msgs:
+            try:
+                await snt_msg.delete()
+            except Exception as e:
+                print(f"Error: {e}")
+
+        # Delete the notification message
+        try:
+            await temp_msg.delete()
+        except Exception as e:
+            print(f"Error: {e}")
+
+        # Use client.username for dynamic bot username
+        retrieve_url = f"https://t.me/{client.username}?start={base64_string}"
+        await client.send_message(
+            message.from_user.id,
+            "<b>🚫 Fɪʟᴇꜱ ʜᴀꜱ ʙᴇᴇɴ Dᴇʟᴇᴛᴇᴅ.\n\n✅ Cʟɪᴄᴋ ᴛʜᴇ Bᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴛʜᴇ Fɪʟᴇꜱ Aɢᴀɪɴ.</b>",
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Retrieve Files", url=retrieve_url)]])
+        )
         return
 
     else:
@@ -57,92 +138,6 @@ async def start_command(client: Client, message: Message):
             quote=True
         )
         return
-
-async def process_link(client: Client, message: Message, base64_string: str):
-    string = await decode(base64_string)
-    argument = string.split("-")
-    if len(argument) == 3:
-        try:
-            start = int(int(argument[1]) / abs(client.db_channel.id))
-            end = int(int(argument[2]) / abs(client.db_channel.id))
-        except:
-            return
-        if start <= end:
-            ids = range(start, end + 1)
-        else:
-            ids = []
-            i = start
-            while True:
-                ids.append(i)
-                i -= 1
-                if i < end:
-                    break
-    elif len(argument) == 2:
-        try:
-            ids = [int(int(argument[1]) / abs(client.db_channel.id))]
-        except:
-            return
-    temp_msg = await message.reply("Please wait...")
-    try:
-        messages = await get_messages(client, ids)
-    except:
-        await message.reply_text("Something went wrong..!")
-        return
-    await temp_msg.delete()
-
-    snt_msgs = []
-
-    for msg in messages:
-        if bool(CUSTOM_CAPTION) & bool(msg.document):
-            caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
-        else:
-            caption = "" if not msg.caption else msg.caption.html
-
-        if DISABLE_CHANNEL_BUTTON:
-            reply_markup = msg.reply_markup
-        else:
-            reply_markup = None
-
-        try:
-            snt_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
-            snt_msgs.append(snt_msg)
-            await asyncio.sleep(0.5)
-        except FloodWait as e:
-            await asyncio.sleep(e.x)
-            snt_msg = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
-            snt_msgs.append(snt_msg)
-        except:
-            pass
-
-    # Send the notification message about file deletion
-    temp_msg = await client.send_message(
-        message.from_user.id,
-        "<b>⚠️ Fɪʟᴇꜱ ᴡɪʟʟ ʙᴇ Dᴇʟᴇᴛᴇᴅ ɪɴ 30 ᴍɪɴꜱ\n\n♻️ Pʟᴇᴀꜱᴇ Fᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ Sᴀᴠᴇᴅ Mᴇꜱꜱᴀɢᴇꜱ Bᴇꜰᴏʀᴇ Dᴏᴡɴʟᴏᴀᴅɪɴɢ..!</b>"
-    )
-
-    # Wait for the specified time
-    await asyncio.sleep(SECONDS)
-
-    # Delete files
-    for snt_msg in snt_msgs:
-        try:
-            await snt_msg.delete()
-        except Exception as e:
-            print(f"Error: {e}")
-
-    # Delete the notification message
-    try:
-        await temp_msg.delete()
-    except Exception as e:
-        print(f"Error: {e}")
-
-    # Use client.username for dynamic bot username
-    retrieve_url = f"https://t.me/{client.username}?start={base64_string}"
-    await client.send_message(
-        message.from_user.id,
-        "<b>🚫 Fɪʟᴇꜱ ʜᴀꜱ ʙᴇᴇɴ Dᴇʟᴇᴛᴇᴅ.\n\n✅ Cʟɪᴄᴋ ᴛʜᴇ Bᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ɢᴇᴛ ᴛʜᴇ Fɪʟᴇꜱ Aɢᴀɪɴ.</b>",
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Retrieve Files", url=retrieve_url)]])
-    )
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
