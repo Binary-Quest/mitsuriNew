@@ -11,7 +11,7 @@ from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
 
 # Auto-delete time in seconds
-SECONDS = int(os.getenv("SECONDS", "60"))
+SECONDS = int(os.getenv("SECONDS", "1800"))
 
 WAIT_MSG = "<b>Processing ...</b>"
 REPLY_ERROR = "<code>Use this command as a reply to any telegram message without any spaces.</code>"
