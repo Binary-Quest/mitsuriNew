@@ -10,7 +10,8 @@ from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL
 from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
 
-DELETE_TIME = 1800  # Time in seconds
+
+
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 async def start_command(client: Client, message: Message):
@@ -21,7 +22,7 @@ async def start_command(client: Client, message: Message):
         except:
             pass
     text = message.text
-    if len(text) > 7:
+    if len(text)>7:
         try:
             base64_string = text.split(" ", 1)[1]
         except:
@@ -35,7 +36,7 @@ async def start_command(client: Client, message: Message):
             except:
                 return
             if start <= end:
-                ids = range(start, end + 1)
+                ids = range(start,end+1)
             else:
                 ids = []
                 i = start
@@ -57,11 +58,10 @@ async def start_command(client: Client, message: Message):
             return
         await temp_msg.delete()
 
-        sent_message_ids = []
-
         for msg in messages:
+
             if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
+                caption = CUSTOM_CAPTION.format(previouscaption = "" if not msg.caption else msg.caption.html, filename = msg.document.file_name)
             else:
                 caption = "" if not msg.caption else msg.caption.html
 
@@ -71,70 +71,63 @@ async def start_command(client: Client, message: Message):
                 reply_markup = None
 
             try:
-                sent_message = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
-                sent_message_ids.append(sent_message.id)
+                await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
                 await asyncio.sleep(0.5)
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                sent_message = await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
-                sent_message_ids.append(sent_message.id)
+                await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
             except:
                 pass
-
-        # Send warning message and add its ID to the list
-        warning_message = await message.reply_text(
-            "⚠️ Fɪʟᴇꜱ ᴡɪʟʟ ʙᴇ Dᴇʟᴇᴛᴇᴅ ɪɴ 30 ᴍɪɴꜱ\n\n♻️ Pʟᴇᴀꜱᴇ Fᴏʀᴡᴀʀᴅ ɪᴛ ᴛᴏ Sᴀᴠᴇᴅ Mᴇꜱꜱᴀɢᴇꜱ Bᴇꜰᴏʀᴇ Dᴏᴡɴʟᴏᴀᴅɪɴɢ..!"
-        )
-        sent_message_ids.append(warning_message.id)
-
-        # Schedule deletion of the files and the warning message after DELETE_TIME seconds
-        await asyncio.sleep(DELETE_TIME)
-        for msg_id in sent_message_ids:
-            try:
-                await client.delete_messages(chat_id=message.from_user.id, message_ids=msg_id)
-            except:
-                pass
-
         return
     else:
         reply_markup = InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("❤️‍🔥 ᴍʏ ᴄʀᴇᴀᴛᴏʀ 🥵", callback_data="about"),
-                    InlineKeyboardButton("🥺 ᴄʟᴏsᴇ ᴍᴇ 🌟", callback_data="close")
+                    InlineKeyboardButton("❤️‍🔥 ᴍʏ ᴄʀᴇᴀᴛᴏʀ 🥵", callback_data = "about"),
+                    InlineKeyboardButton("🥺 ᴄʟᴏsᴇ ᴍᴇ 🌟", callback_data = "close")
                 ]
             ]
         )
         await message.reply_text(
-            text=START_MSG.format(
-                first=message.from_user.first_name,
-                last=message.from_user.last_name,
-                username=None if not message.from_user.username else '@' + message.from_user.username,
-                mention=message.from_user.mention,
-                id=message.from_user.id
+            text = START_MSG.format(
+                first = message.from_user.first_name,
+                last = message.from_user.last_name,
+                username = None if not message.from_user.username else '@' + message.from_user.username,
+                mention = message.from_user.mention,
+                id = message.from_user.id
             ),
-            reply_markup=reply_markup,
-            disable_web_page_preview=True,
-            quote=True
+            reply_markup = reply_markup,
+            disable_web_page_preview = True,
+            quote = True
         )
         return
 
+    
+#=====================================================================================##
 
+WAIT_MSG = """"<b>Processing ...</b>"""
+
+REPLY_ERROR = """<code>Use this command as a replay to any telegram message with out any spaces.</code>"""
+
+#=====================================================================================##
+
+    
+    
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
     buttons = [
         [
             InlineKeyboardButton(
                 "⛩️ 𝙅ᴏɪɴ 𝘾ʜᴀɴɴᴇʟ  ⛩️",
-                url=client.invitelink)
+                url = client.invitelink)
         ]
     ]
     try:
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text='‼️ 𝙏ʀʏ 𝘼ɢᴀɪɴ ‼️',
-                    url=f"https://t.me/{client.username}?start={message.command[1]}"
+                    text = '‼️ 𝙏ʀʏ 𝘼ɢᴀɪɴ ‼️',
+                    url = f"https://t.me/{client.username}?start={message.command[1]}"
                 )
             ]
         )
@@ -142,25 +135,23 @@ async def not_joined(client: Client, message: Message):
         pass
 
     await message.reply(
-        text=FORCE_MSG.format(
-            first=message.from_user.first_name,
-            last=message.from_user.last_name,
-            username=None if not message.from_user.username else '@' + message.from_user.username,
-            mention=message.from_user.mention,
-            id=message.from_user.id
-        ),
-        reply_markup=InlineKeyboardMarkup(buttons),
-        quote=True,
-        disable_web_page_preview=True
+        text = FORCE_MSG.format(
+                first = message.from_user.first_name,
+                last = message.from_user.last_name,
+                username = None if not message.from_user.username else '@' + message.from_user.username,
+                mention = message.from_user.mention,
+                id = message.from_user.id
+            ),
+        reply_markup = InlineKeyboardMarkup(buttons),
+        quote = True,
+        disable_web_page_preview = True
     )
-
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
     msg = await client.send_message(chat_id=message.chat.id, text=WAIT_MSG)
     users = await full_userbase()
     await msg.edit(f"{len(users)} users are using this bot")
-
 
 @Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
@@ -172,7 +163,7 @@ async def send_text(client: Bot, message: Message):
         blocked = 0
         deleted = 0
         unsuccessful = 0
-
+        
         pls_wait = await message.reply("<i>Broadcasting Message.. This will Take Some Time</i>")
         for chat_id in query:
             try:
@@ -192,7 +183,7 @@ async def send_text(client: Bot, message: Message):
                 unsuccessful += 1
                 pass
             total += 1
-
+        
         status = f"""<b><u>Broadcast Completed</u>
 
 Total Users: <code>{total}</code>
@@ -200,7 +191,7 @@ Successful: <code>{successful}</code>
 Blocked Users: <code>{blocked}</code>
 Deleted Accounts: <code>{deleted}</code>
 Unsuccessful: <code>{unsuccessful}</code></b>"""
-
+        
         return await pls_wait.edit(status)
 
     else:
